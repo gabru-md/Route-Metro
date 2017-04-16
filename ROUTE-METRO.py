@@ -23,7 +23,7 @@ to_station = str.lower(to_station)
 to_station = to_station.replace(" ","-") + "-delhi-metro-station"
 
 page = urllib2.urlopen(url)
-page_html = BeautifulSoup(page)
+page_html = BeautifulSoup(page,'html.parser')
 
 
 station_list = []
@@ -39,7 +39,7 @@ url = url + from_station + "-to-" + to_station
 print "Establishing Connection"
 page = urllib2.urlopen(url)
 
-page_html = BeautifulSoup(page)
+page_html = BeautifulSoup(page,'html.parser')
 l = page_html.find_all('td')
 fare_details = l[0].text.encode('utf-8')
 fare_details = fare_details.replace("Time","\n\t\tTime ")
