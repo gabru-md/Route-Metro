@@ -7,11 +7,13 @@ from bs4 import BeautifulSoup
 sys_args = sys.argv
 
 url = "https://delhimetrorail.info/"
+url2 ="https://delhimetrorail.info/delhi-metro-stations"
 
 try:
 	from_station = str(sys.argv[1])
 except IndexError:
 	from_station = str(raw_input("Enter the Boarding Station: "))
+from_station_name=from_station
 from_station = str.lower(from_station)
 from_station = from_station.replace(" ","-") + "-delhi-metro-station"
 
@@ -19,50 +21,47 @@ try:
 	to_station = str(sys.argv[2])
 except IndexError:
 	to_station = str(raw_input("Enter the Destination: "))
+to_station_name=to_station
 to_station = str.lower(to_station)
 to_station = to_station.replace(" ","-") + "-delhi-metro-station"
 
-page = urllib2.urlopen(url)
+page = urllib2.urlopen(url2)
 page_html = BeautifulSoup(page,'html.parser')
 
 
 station_list = []
 
-for tt in page_html.find_all('option'):
-	station_list.append(str(tt['value'].encode('utf-8')))
+for tt in page_html.find_all("td", class_="left"):
+	ss=tt.find_all('a')
+	for ess in ss:
+		station_list.append(str(ess.text).encode('utf-8'))
 
-if from_station not in station_list or to_station not in station_list :
+if from_station_name not in station_list or to_station_name not in station_list :
+	print from_station_name
+	print to_station_name
+	print "Nahi Hai"
 	sys.exit()
 
 url = url + from_station + "-to-" + to_station
-#print url
+print url
 print "Establishing Connection"
 page = urllib2.urlopen(url)
 
 page_html = BeautifulSoup(page,'html.parser')
-l = page_html.find_all('td')
-fare_details = l[0].text.encode('utf-8')
-fare_details = fare_details.replace("Time","\n\t\tTime ")
-fare_details = fare_details.replace("Distance","\n\t\tDistance ")
-final = fare_details.split("First")
+
+fare_details = []
+
+table = page_html.find('table', attrs={'class':'table'})
+#print table
+
+
+rows = table.find('td')
+cols = rows.find('tr')
+r1=cols.find('td')
+fare_details.append(str(r1.text).encode('utf-8'))
+print fare_details
+
 print "Parsing Data, Collecting Information"
 print "Making Route Chart!"
 print "\n-------------------FARE DETAILS-------------------\n"
-print "\t\t" + str(final[0])
-
-temp = page_html.find_all('span')
-route_map = temp[15].find_all('a')
-
-
-print "\n\n-------------------ROUTE MAP-------------------\n"
-for i in range(1,len(route_map)):
-	if i > 1:
-		if route_map[i-1].text == route_map[i].text:
-			print "\n<------------- INTERCHANGE HERE ------------->\n"
-			print "\t\t" + route_map[i].text
-		else:
-			print "\t\t" + route_map[i].text
-	else:
-		print "\t\t" + route_map[i].text
-
-
+print str(fare_details[0])
